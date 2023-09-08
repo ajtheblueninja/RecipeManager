@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Recipe Manager Input Page</title>
+  <script>
+    //example of object that'd be inputed into the recipes object which would get stored locally
+
+    //to do list
+      //add in dup recipe name prevention
+      //picture substitution if not correct formating
+      
+
+
+      var recipes = {
+	'spaghetti': {
+		'title': 'Spaghetti',
+		'image': 'https://via.placeholder.com/300x200.png?text=Spaghetti',
+		'servings': 4,
+		'time': '30 minutes',
+		'difficulty': 'Easy',
+		"ingredients": [
+    {
+      "quantity": 2,
+      "ingredient": "cups heavy cream"
+    },
+    {
+      "quantity": 1,
+      "ingredient": "cup grated Parmesan cheese"
+    },
+    {
+      "quantity": 1,
+      "ingredient": "pound fettuccine"
+    },
+    {
+      "quantity": 2,
+      "ingredient": "cloves garlic"
+    }
+  ],
+		'steps': [
+			'Bring a large pot of salted water to a boil. Add the spaghetti and cook until al dente, about 8-10 minutes.',
+			'While the spaghetti is cooking, heat the olive oil in a large skillet over medium heat. Add the garlic and red pepper flakes and cook until fragrant, about 1-2 minutes.',
+			'Remove the skillet from the heat and add the cooked spaghetti, parsley, and parmesan. Toss to combine, adding a splash of pasta water if needed to loosen the sauce.',
+			'Serve hot, garnished with additional parmesan and parsley if desired.'
+		]
+	  }
+  }
+
+ </script>
+</head>
+<body>
+  <a href="homepage.html">View Recipes</a>
+
+  <h1>Add Recipe</h1>
+	
+  <form id="recipeForm">
+    
+    <label for="recipeName">Recipe Name:</label>
+    <input type="text" id="recipeName" name="recipeName"><br><br>
+
+    <label for="recipeImage">Image URL:</label>
+    <input type="text" id="recipeImage" name="recipeImage"><br><br>
+
+    <label for="recipeServings">Servings:</label>
+    <input type="number" id="recipeServings" name="recipeServings" min="1"><br><br>
+
+    <label for="recipeTime">Preparation/Cooking Time:</label>
+    <input type="text" id="recipeTime" name="recipeTime"><br><br>
+
+    <label for="recipeDifficulty">Difficulty:</label>
+    <select id="recipeDifficulty" name="recipeDifficulty">
+      <option value="Easy">Easy</option>
+      <option value="Medium">Medium</option>
+      <option value="Hard">Hard</option>
+    </select><br><br>
+    
+
+    <label for="ingredientInputs">Ingredients:</label><br>
+    <div id="ingredientInputs">
+      <div>
+        <input type="number" class="quantity" min="1" required>
+        <input type="text" class="ingredient" required>
+      </div>
+    </div>
+    <button type="button" id="addIngredient">Add Ingredient</button>
+    <button type="button" id="removeIngredient">Remove Ingredient</button><br><br>
+    
+    
+    <label for="stepInputs">Steps:</label><br>
+    <div id="stepInputs">
+      <div>
+        <textarea class="recipeSteps" rows="2" required></textarea>
+      </div>
+    </div>
+    <button type="button" id="addStep">Add Step</button>
+    <button type="button" id="removeStep">Remove Step</button><br><br>
+    
+
+    <input type="submit" value="Submit Recipe">
+
+    <button type="button" id="resetForm" onclick="ResetForm()">Reset Form</button>
+
+  </form>
+
+  <script>
+    var recipeArray = []; //global variable for all recipes
+    
+    //reset form button
+    function ResetForm(){
+      //console.log("reset called");
+      const recipeForm = document.querySelector('#recipeForm');
+      
+      //resets dynamic ingredient sections
+      const ingredientInputs = document.querySelector("#ingredientInputs");
+      const ingredientDivs = ingredientInputs.querySelectorAll("div");
+      for (let i = 1; i < ingredientDivs.length; i++) {
+        ingredientDivs[i].remove();
+      }
+
+      //resets dynamic steps sections
+      const stepInputs = document.querySelector("#stepInputs");
+      const stepDivs = stepInputs.querySelectorAll("div");
+      for (let i = 1; i < stepDivs.length; i++) {
+        stepDivs[i].remove();
+      }
+      
+      recipeForm.reset();
+    }
+
+    //add ingredients
+      document.querySelector("#addIngredient").addEventListener("click",function() {
+      const ingredientInputsContainer = document.querySelector('#ingredientInputs');
+
+      const newIngredientInput = document.createElement('div');
+      newIngredientInput.innerHTML = `
+      <input type="number" class="quantity" min="1" required>
+      <input type="text" class="ingredient" required>`;
+
+      ingredientInputsContainer.appendChild(newIngredientInput);
+    });
+    //remove ingredients
+    document.querySelector("#removeIngredient").addEventListener("click", function() {
+      const ingredientInputs = document.querySelector("#ingredientInputs");
+      const inputs = ingredientInputs.querySelectorAll("div");
+      if (inputs.length > 1) {
+        const lastInput = inputs[inputs.length - 1];
+        ingredientInputs.removeChild(lastInput);
+      }
+    });
+    //add steps
+    document.querySelector("#addStep").addEventListener("click", function() {
+      const stepsDiv = document.querySelector("#stepInputs");
+      const newStepDiv = document.createElement("div");
+      newStepDiv.innerHTML = `<textarea class="recipeSteps" rows="2" required></textarea>`;
+      stepsDiv.appendChild(newStepDiv);
+    });
+    //remove steps
+    document.querySelector("#removeStep").addEventListener("click", function() {
+    const stepsDiv = document.querySelector("#stepInputs");
+    const stepInputs = stepsDiv.querySelectorAll("textarea");
+    if (stepInputs.length > 1) { // Ensure there is always one set of inputs
+    stepsDiv.removeChild(stepInputs[stepInputs.length - 1].parentNode);
+    }
+    });
+    //receiving input from the form to put it into our object
+    document.getElementById("recipeForm").addEventListener("submit", function(event) {
+    event.preventDefault(); 
+
+    if(JSON.parse(localStorage.getItem("recipeArray")) == null){
+      recipeArray = [];
+      console.log("null array");
+    }
+    else{
+      recipeArray = JSON.parse(localStorage.getItem("recipeArray"));
+      console.log("array not null");
+    } //gets either empty array or recipe array
+
+    //console.log(recipeArray.length);
+      addRecipe();
+    //console.log(recipeArray.length);
+
+    });
+
+    function addRecipe() {
+      // get form input values
+      //console.log("submit called");
+      var recipeName = document.querySelector("#recipeName").value;
+      var recipeImage = document.querySelector("#recipeImage").value;
+      var recipeServings = document.querySelector("#recipeServings").value;
+      var recipeTime = document.querySelector("#recipeTime").value;
+      var recipeDifficulty = document.querySelector("#recipeDifficulty").value;
+      
+      //getting ingredients
+      
+      var ingredients = [];
+      const ingredientInputs = document.querySelectorAll('#ingredientInputs > div');
+        ingredientInputs.forEach(input => {
+        const quantity = input.querySelector('input[type="number"]').value;
+        const ingredientName = input.querySelector('input[type="text"]').value;
+        let ingredientObj = { quantity: quantity, name: ingredientName};
+        ingredients.push(ingredientObj);
+      });
+
+      //getting steps
+      var steps = [];
+      const stepContainer = document.querySelector('#stepInputs');
+      const textareas = stepContainer.querySelectorAll("textarea");
+      textareas.forEach((textarea) => {
+        const value = textarea.value.trim();
+        if (value !== "") {
+          steps.push(value);
+        }
+      });
+
+      // creating recipe object
+      
+      var recipeObj = {
+        name: recipeName,
+        image: recipeImage,
+        servings: recipeServings,
+        time: recipeTime,
+        difficulty: recipeDifficulty,
+        ingredients: ingredients,
+        steps: steps
+      };
+      
+      console.log("Recipie Object");
+      console.log(recipeObj);
+      // add recipe object to recipe array
+      recipeArray.push(recipeObj);
+      console.log(recipeArray);
+
+      ResetForm();
+      //console.log("recipe array");
+      //console.log(recipeArray);
+      localStorage.setItem("recipeArray", JSON.stringify(recipeArray));
+      // save recipe array to local storage
+    }  
+  </script>
+</body>
+</html>

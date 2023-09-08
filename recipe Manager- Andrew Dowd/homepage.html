@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Recipe Manager Homepage</title>
+  <style>
+    .ingredients{
+
+      display: none;
+    }
+    .steps{
+      display: none;
+    }
+    #recipe{
+      display: none;
+    }
+    
+  </style>
+ <script>
+      //todo picture outputing
+
+      var serving = 1; //global var
+
+      /* recipe example
+      var recipeObj = {
+        name: recipeName,
+        image: recipeImage,
+        servings: recipeServings,
+        time: recipeTime,
+        difficulty: recipeDifficulty,
+        ingredients: ingredients: [quantity: quantity, name: ingredientName],
+        steps: steps [step]
+      };
+      */
+      function loadRecipe(position){
+          //gets the places to input data in
+          const title = document.querySelector("#recipeTitle");
+          const difficulty = document.querySelector("#difficulty");
+          const prepTime = document.querySelector("#prepTime");
+          const servings = document.querySelector("#servings");
+          const steps = document.querySelector("#stepsList");
+          var stepsCount = document.querySelectorAll("#stepElement");
+          const ingredients = document.querySelector("#ingredientsList");
+          var ingredientCount = document.querySelectorAll("#ingredElement");
+
+          console.log(ingredientCount.length);
+          if(ingredientCount.length > 0){
+            for (let c = 0; c < ingredientCount.length; c++) {
+              document.getElementById("ingredElement").remove();
+            }
+          }
+            //outputs the ingredients
+          for (let b = 0; b < recipeArray[position].ingredients.length; b++) {
+            const newIngredientListElement = document.createElement('li');
+            quantity = recipeArray[position].ingredients[b].quantity
+            quantity = quantity * serving;
+            //console.log("servings " + serving);
+            newIngredientListElement.innerHTML = quantity + " " + recipeArray[position].ingredients[b].name;
+            newIngredientListElement.id = "ingredElement";
+            ingredients.appendChild(newIngredientListElement);
+          }
+
+          //console.log(ingredientCount.length);
+          //console.log( recipeArray[position].ingredients[0].quantity + " " +  recipeArray[position].ingredients[0].name);
+            //deletes previous inputs if possible
+
+          if(stepsCount.length > 0){
+            for (let c = 0; c < stepsCount.length; c++) {
+              document.getElementById("stepElement").remove();
+            }
+          }
+
+          //ouputs the steps
+          for (let d = 0; d < recipeArray[position].ingredients.length; d++) {
+            const newStepListElement = document.createElement('li');
+            newStepListElement.innerHTML = recipeArray[position].steps[d];
+            newStepListElement.id = "stepElement";
+            steps.appendChild(newStepListElement);
+          }
+
+
+          //create p for ingredients and steps
+
+          //console.log(recipeArray[position]);
+
+          title.innerHTML = recipeArray[position].name;
+          difficulty.innerHTML = recipeArray[position].difficulty;
+          prepTime.innerHTML = recipeArray[position].time;
+          servings.innerHTML = recipeArray[position].servings;
+
+          //outputs the data to the correct places and making sure to check the servings variable
+
+      }
+
+
+      function onLoad(){
+        recipeArray = JSON.parse(localStorage.getItem("recipeArray"));
+
+        console.log(recipeArray);
+
+        //sets list of recipes on load
+        const recipeList = document.querySelector("#recipeListing");
+        for (let i = 0; i < recipeArray.length; i++) {
+          const newListElement = document.createElement('li');
+          newListElement.innerHTML = recipeArray[i].name;
+          //console.log(recipeArray[i].name);
+          recipeList.appendChild(newListElement);
+        }
+
+        //sets drop down list of recipes on load
+        const recipeDropdown = document.querySelector("#recipeSelector");
+        for (let j = 0; j < recipeArray.length; j++) {
+          const newListElement = document.createElement('option');
+          newListElement.innerHTML = recipeArray[j].name;
+          newListElement.value = recipeArray[j].name;
+          //console.log(recipeArray[j].name);
+          recipeDropdown.appendChild(newListElement);
+        }
+
+        var showIngButton = document.querySelector("#showIngredients")
+        var hideIngButton = document.querySelector("#hideIngredients");
+        var ingredientsDiv = document.querySelector(".ingredients");
+
+        var showStepsButton = document.querySelector("#showSteps");
+        var hideStepsButton = document.querySelector("#hideSteps");
+        var stepsDiv = document.querySelector(".steps");
+
+
+        //ingredients buttons
+        showIngButton.addEventListener("click", function() {
+          hideIngButton.style.display = "block";
+          showIngButton.style.display = "none";
+          ingredientsDiv.style.display = "block";
+        });
+        hideIngButton.addEventListener("click", function() {
+          hideIngButton.style.display = "none";
+          showIngButton.style.display = "block";
+          ingredientsDiv.style.display = "none";
+        });
+
+        //steps buttons
+        document.querySelector("#showSteps").addEventListener("click", function() {
+          hideStepsButton.style.display = "block";
+          showStepsButton.style.display = "none";
+          stepsDiv.style.display = "block";
+        });
+        document.querySelector("#hideSteps").addEventListener("click", function() {
+          hideStepsButton.style.display = "none";
+          showStepsButton.style.display = "block";
+          stepsDiv.style.display = "none";
+        });
+        // dynamic display of the recipe section
+        document.querySelector("#recipeSelector").addEventListener("change", function() {
+          var selectedValue = document.querySelector("#recipeSelector").value;
+          var recipeDiv = document.querySelector("#recipe");
+
+          // update content based on selected value
+          if (selectedValue === "default") {recipeDiv.style.display = "none";}
+
+          else if (selectedValue != "default") {
+            recipeDiv.style.display = "block";
+            //fetching the data from the object
+            for (let a = 0; a < recipeArray.length; a++) {
+              if(recipeArray[a].name == selectedValue){
+                  loadRecipe(a);
+                  position = a;
+                  //console.log("position is:" + a);
+                  //console.log(recipeArray[a]);
+              }
+            }
+
+          }
+      });
+
+      document.querySelector("#servingsSelector").addEventListener("change", function() {
+        var selectedServing = document.querySelector("#servingsSelector").value;
+        //console.log(selectedServing);
+        serving = selectedServing;
+
+        const ingredients = document.querySelector("#ingredientsList");
+          var ingredientCount = document.querySelectorAll("#ingredElement");
+
+          if(ingredientCount.length > 0){
+            for (let c = 0; c < ingredientCount.length; c++) {
+              document.getElementById("ingredElement").remove();
+            }
+          }
+            //outputs the ingredients
+          for (let b = 0; b < recipeArray[position].ingredients.length; b++) {
+            const newIngredientListElement = document.createElement('li');
+            var quantity = recipeArray[position].ingredients[b].quantity
+            quantity = quantity * serving;
+            //console.log("servings " + serving);
+            newIngredientListElement.innerHTML = quantity + " " + recipeArray[position].ingredients[b].name;
+            newIngredientListElement.id = "ingredElement";
+            ingredients.appendChild(newIngredientListElement);
+          }
+
+
+        });
+
+    } //on load function end
+
+
+        
+  
+ </script>
+
+</head>
+<a href="inputPage.html">Input Recipes</a>
+
+<body onload="onLoad()">
+  <h1>Recipe Book</h1>
+	<div id="recipe-list">
+		<h2>Available Recipes</h2>
+		<ul id="recipeListing">
+			
+		</ul>
+	</div>
+<label for="recipes">Choose a recipe:</label>
+
+<select name="recipeSelector" id="recipeSelector">
+  <option value="default"> --select a recipe--</option>
+</select>
+
+	<div id="recipe">
+    <h2><strong>Recipe Title:</strong> <span id="recipeTitle"></span></h2>
+		<div id="recipeImageContainer">
+			<img id="recipeImage" class="recipeImage" src="" alt="" />
+		</div>
+		<div id="recipeDetails">
+			<p><strong>Prep/Cook Time:</strong> <span id="prepTime"></span></p>
+			<p><strong>Difficulty:</strong> <span id="difficulty"></span></p>
+      <p><strong>Servings:</strong> <span id="servings"></span></p>
+
+			<div>
+				<label for="servings">Types of Servings:</label>
+        <select name="servingsSelector" id="servingsSelector">
+				<option id="normal-servings" value="1">Normal</option>
+        <option id="half-servings" value="0.5">Half</option>
+				<option id="double-servings" value="2">Double</option>
+        </select>
+			</div>
+			<div>
+        <h3>Ingredients:</h3>
+				<button id="showIngredients">Show Ingredients</button>
+			</div>
+        
+			<div class="ingredients">
+				<p>placeholder1</p>
+				<ul id="ingredientsList"></ul>
+				<button id="hideIngredients">Hide Ingredients</button>
+			</div>
+      <div>
+        <h3>Recipe Steps:</h3>
+        <button id="showSteps">Show Recipe Steps</button>
+      </div>
+      
+			<div class="steps">
+        <p>placeholder2</p>
+				<ul id="stepsList"></ul>
+				<button id="hideSteps">Hide Recipe Steps</button>
+			</div>
+
+		</div>
+	</div>
+</div>
+</body>
+</html>
